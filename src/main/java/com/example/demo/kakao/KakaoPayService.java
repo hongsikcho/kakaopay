@@ -25,7 +25,7 @@ public class KakaoPayService {
 
     private static final String HOST = "https://kapi.kakao.com";
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplates;
     private KakaoPayResponse kakaoPayResponse;
     private KakaoPayApproval kakaoPayApproval;
     private KakaoPayCancel kakaoPayCancel;
@@ -49,7 +49,7 @@ public class KakaoPayService {
         params.add("cid", "TC0ONETIME");
         params.add("partner_order_id", "1001");
         params.add("partner_user_id", "gorany");
-        params.add("item_name", "갤럭시S9");
+        params.add("item_name", "아이폰14");
         params.add("quantity", "1");
         params.add("total_amount", "2100");
         params.add("tax_free_amount", "100");
@@ -60,7 +60,8 @@ public class KakaoPayService {
         HttpEntity<MultiValueMap<String, String>> body = new HttpEntity<MultiValueMap<String, String>>(params, headers);
 
         try {
-            kakaoPayResponse = restTemplate.postForObject(new URI(HOST + "/v1/payment/ready"), body, KakaoPayResponse.class);
+            //RestTemplate을 이용해 카카오페이에 데이터를 보내는 방법.
+            kakaoPayResponse = restTemplates.postForObject(new URI(HOST + "/v1/payment/ready"), body, KakaoPayResponse.class);
             return kakaoPayResponse.getNext_redirect_pc_url();
 
         } catch (RestClientException e) {
@@ -73,5 +74,44 @@ public class KakaoPayService {
 
         return "/pay";
 
+    }
+
+    public KakaoPayApproval kakaoPayApprove(String pg_token) {
+
+        log.info("KakaoPayInfoVO............................................");
+        log.info("-----------------------------");
+
+        // 서버로 요청할 Header
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "KakaoAK " + kakao_admin_key);
+        headers.add("Accept", String.valueOf(MediaType.APPLICATION_JSON));
+        headers.add("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+
+        // 서버로 요청할 Body
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+        params.add("cid", "TC0ONETIME");
+        params.add("tid", kakaoPayResponse.getTid());
+        params.add("partner_order_id", "1001");
+        params.add("partner_user_id", "gorany");
+        params.add("pg_token", pg_token);
+        params.add("total_amount", "2100");
+
+        HttpEntity<MultiValueMap<String, String>> body = new HttpEntity<>(params, headers);
+
+        try {
+            kakaoPayApproval = restTemplates.postForObject(new URI(HOST + "/v1/payment/approve"), body, KakaoPayApproval.class);
+            log.info("" + kakaoPayApproval);
+
+            return kakaoPayApproval;
+
+        } catch (RestClientException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

@@ -1,9 +1,10 @@
 package com.example.demo.kakao.KakaoApproval;
 
+
 import lombok.Data;
 
 @Data
-public class Amount {
+public class CancelAvailableAmount {
     private Integer total;
     private Integer tax_free;
     private Integer vat;
