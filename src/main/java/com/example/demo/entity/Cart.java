@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 public class Cart extends BaseEntity {
 
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CART_ID")
